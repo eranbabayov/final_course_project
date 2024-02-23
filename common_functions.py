@@ -28,11 +28,10 @@ def get_user_data_from_db(username=None, password=None):
     with conn.cursor(as_dict=True) as cursor:
         if username and password:
             cursor.execute(
-                "SELECT * FROM users WHERE username = %s AND password = %s",
-                (username, password))
+                f"SELECT * FROM users WHERE username = '{username}' AND password = '{password}'")
         else:
             cursor.execute(
-                f"SELECT * FROM users WHERE username = %s", (username,))
+                f"SELECT * FROM users WHERE username = '{username}'")
         return cursor.fetchone()
 
 
@@ -82,7 +81,7 @@ def get_client_data(client_id):
 def get_client_data_by_name(first_name, last_name):
     with conn.cursor(as_dict=True) as cursor:
         cursor.execute(
-            "SELECT * FROM clients WHERE first_name = %s AND last_name = %s", (first_name, last_name))
+            f"SELECT * FROM clients WHERE first_name = '{first_name}' AND last_name = '{last_name}'")
         return cursor.fetchall()
 
 
@@ -104,15 +103,12 @@ def check_if_user_exists_using_email(email: str) -> bool:
 def insert_new_user_to_db(new_username, new_password, new_email, salt):
     with conn.cursor(as_dict=True) as cursor:
         cursor.execute(
-            "INSERT INTO users (username, password, email) VALUES (%s, %s, %s)",
-            (new_username, new_password, new_email))
+            f"INSERT INTO users (username, password, email) VALUES ('{new_username}', '{new_password}', '{new_email}')")
         user_id = cursor.lastrowid
         cursor.execute(
-            "INSERT INTO user_info (user_id,salt) VALUES (%s, %s)",
-            (user_id, salt))
+            f"INSERT INTO user_info (user_id,salt) VALUES ('{user_id}', '{salt}')")
         cursor.execute(
-            "INSERT INTO password_history (user_id,password,salt) VALUES (%s, %s, %s)",
-            (user_id, new_password, salt))
+            f"INSERT INTO password_history (user_id,password,salt) VALUES ('{user_id}', '{new_password}', '{salt}')")
 
 
 def insert_user_sectors_selected_to_db(publish_sectors, user_id):
@@ -255,3 +251,4 @@ def check_if_reset_token_exists(reset_token):
             '''SELECT * FROM users WHERE reset_token = %s''',
             (hashed_token,))
         return cursor.fetchone()
+

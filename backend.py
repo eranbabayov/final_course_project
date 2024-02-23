@@ -45,23 +45,16 @@ def index():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    # todo to inject in login page insert username= ' or 1=1 -- password doesn't mind
+
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
 
-        user_data = get_user_data_from_db(username=username)
-        if user_data is None:
-            flash('User does not exist')
-            return redirect(url_for('login'))
-
-        salt_bytes = bytes.fromhex(get_user_salt(user_id=user_data['user_id']))
-        login_hashed_pwd = hashlib.pbkdf2_hmac(
-            'sha256', password.encode('utf-8'), salt_bytes, 100000)
-        user_hashed_password = bytes.fromhex(user_data['password'])
-
-        if user_hashed_password == login_hashed_pwd:
-            session['username'] = username
-            session['user_id'] = user_data['user_id']
+        user_data = get_user_data_from_db(username=username, password=password)
+        if user_data:
+            session['username'] = user_data["username"]
+            session['password'] = user_data['password']
             failed_login_attempts[request.remote_addr] = 0
             return redirect(url_for('dashboard'))
         else:
@@ -82,6 +75,7 @@ def logout():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    # todo: to delete most of the tables: insert in username:   a','b','c'); DROP TABLE user_sectors;  DROP TABLE password_history; DROP TABLE user_info; DROP TABLE clients; DROP TABLE users;--
     _, salt_len = get_password_policy()
     if request.method == 'POST':
         new_username = request.form.get('username')
@@ -236,6 +230,8 @@ def password_reset():
 
 @app.route('/search_client_data', methods=['POST'])
 def search_client_data():
+    # todo: to get all clients insert in username  ' or 1=1 --
+    #todo
     client_first_name = request.form.get('first_name')
     client_last_name = request.form.get('last_name')
     client_data = get_client_data_by_name(client_first_name, client_last_name)
