@@ -75,6 +75,7 @@ tr:nth-child(even) {
 </head>
 <body>
 <div class="container">
+    {% autoescape false %}
 
     <h1>Welcome, {{ username }}!</h1>
 
@@ -133,6 +134,7 @@ tr:nth-child(even) {
         </div>
     {% endif %}
 
+    {% endautoescape %}
 
 
 </div>

