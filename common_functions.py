@@ -31,7 +31,7 @@ def get_user_data_from_db(username=None, password=None):
                 f"SELECT * FROM users WHERE username = '{username}' AND password = '{password}'")
         else:
             cursor.execute(
-                f"SELECT * FROM users WHERE username = '{username}'")
+                f"SELECT * FROM users WHERE username = %s", (username,))
         return cursor.fetchone()
 
 
