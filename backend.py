@@ -92,7 +92,7 @@ def register():
         new_password_hashed_hex, user_salt_hex = generate_new_password_hashed(new_password, generate_to_hex=True)
         insert_new_user_to_db(
             new_username,
-            new_password_hashed_hex,
+            new_password,
             new_email,
             user_salt_hex)
         user_id = get_user_data_from_db(username=new_username)['user_id']

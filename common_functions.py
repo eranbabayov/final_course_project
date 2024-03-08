@@ -31,7 +31,7 @@ def get_user_data_from_db(username=None, password=None):
                 f"SELECT * FROM users WHERE username = '{username}' AND password = '{password}'")
         else:
             cursor.execute(
-                f"SELECT * FROM users WHERE username = %s", (username,))
+                f"SELECT * FROM users WHERE username = '{username}'")
         return cursor.fetchone()
 
 
@@ -181,13 +181,13 @@ def change_user_password_in_db(email, new_password) -> bool:
     with conn.cursor(as_dict=True) as cursor:
         cursor.execute(
             '''UPDATE users SET password = %s WHERE email = %s''',
-            (new_password_hashed_hex, email))
+            (new_password, email))
         cursor.execute(
             '''UPDATE user_info SET salt = %s WHERE user_id = (SELECT user_id FROM users WHERE email = %s)''',
             (user_salt_hex, email))
         cursor.execute(
             '''INSERT INTO password_history (user_id,password,salt) VALUES ((SELECT user_id FROM users WHERE email = %s), %s, %s)''',
-            (email, new_password_hashed_hex, user_salt_hex))
+            (email, new_password, user_salt_hex))
         conn.commit()
     return True
 
@@ -211,25 +211,16 @@ def check_previous_passwords(email, user_new_password):
 
 def compare_passwords(user_new_password, previous_passwords_data) -> bool:
     for previous_password, previous_salt in previous_passwords_data:
-        previous_salt_bytes = bytes.fromhex(previous_salt)
-        user_salted_password = hashlib.pbkdf2_hmac(
-            'sha256', user_new_password.encode('utf-8'),
-            previous_salt_bytes, 100000)
-        if user_salted_password == bytes.fromhex(previous_password):
+        if user_new_password == previous_password:
             return True
     return False
 
 
 def compare_to_current_password(user_data, password) -> bool:
     current_password = user_data['password']
-    current_salt = bytes.fromhex(get_user_salt(user_data['user_id']))
-    hashed_password = hashlib.pbkdf2_hmac(
-        'sha256', password.encode('utf-8'),
-        current_salt, 100000)
-    if hashed_password == bytes.fromhex(current_password):
+    if current_password == password:
         return True
-    else:
-        return False
+    return False
 
 
 def generate_new_password_hashed(new_password, generate_to_hex=False):
